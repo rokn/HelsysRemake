@@ -24,3 +24,6 @@ all : $(OBJS)
 
 install :
 	apt-get install libsdl2-2.0-0 && apt-get install libsdl2-image-2.0-0 &&  apt-get install libsdl2-ttf-2.0-0
+
+install_dev :
+	apt-get install libsdl2-dev && apt-get install libsdl2-image-dev &&  apt-get install libsdl2-ttf-dev

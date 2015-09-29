@@ -1,12 +1,10 @@
 #include "AGE.h"
 #include "AGE_Graphics.h"
-//#include "AGE_Input.h"
+#include "AGE_Input.h"
 
 using namespace std;
 
-SDL_Renderer *gRenderer = NULL;
-
-bool AGE::Init(const char* windowTitle,int screenWidth, int screenHeight, bool vSync)
+bool AGE_Engine::Init(const char* windowTitle,int screenWidth, int screenHeight, bool vSync)
 {
 	bool success = true;
 	VSynced = vSync;
@@ -24,33 +22,33 @@ bool AGE::Init(const char* windowTitle,int screenWidth, int screenHeight, bool v
 			cout << "Warning: Linear texture filtering not enabled!" << endl;
 		}
 
-		gWindow = SDL_CreateWindow( windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN |SDL_WINDOW_FULLSCREEN);
+		window = SDL_CreateWindow( windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN |SDL_WINDOW_FULLSCREEN);
 		windowRect = new AGE_Rect(0,0,screenWidth,screenHeight);
 
-		if( gWindow == NULL )
+		if( window == NULL )
 		{
-			cout << "gWindow could not be created! SDL Error: " << SDL_GetError() << endl;
+			cout << "window could not be created! SDL Error: " << SDL_GetError() << endl;
 			success = false;
 		}
 		else
 		{
 			if(VSynced)
 			{
-				gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+				renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 			}
 			else
 			{
-				gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED);				
+				renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED);				
 			}
 
-			if( gRenderer == NULL )
+			if( renderer == NULL )
 			{
 				cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << endl;
 				success = false;
 			}
 			else
 			{
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+				SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF );
 
 				int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
 				if( !( IMG_Init( imgFlags ) & imgFlags ) )
@@ -79,18 +77,18 @@ bool AGE::Init(const char* windowTitle,int screenWidth, int screenHeight, bool v
 	return success;
 }
 
-void AGE::Exit()
+void AGE_Engine::Exit()
 {
 	delete windowRect;
 	quit = true;
 }
 
-void AGE::SetWindowSize(int Width,int Height)
+void AGE_Engine::SetWindowSize(int Width,int Height)
 {
-	SDL_SetWindowSize(gWindow, Width, Height);
+	SDL_SetWindowSize(window, Width, Height);
 }
 
-void AGE::Run(EventHandle_age eventHandler, UserUpdate_age userUpdate, UserDraw_age userDraw)
+void AGE_Engine::Run(EventHandle_age eventHandler, UserUpdate_age userUpdate, UserDraw_age userDraw)
 {
 	AGE_Timer fpsTimer;
 	AGE_Timer capTimer;
@@ -108,8 +106,6 @@ void AGE::Run(EventHandle_age eventHandler, UserUpdate_age userUpdate, UserDraw_
 			capTimer.Start();
 		}
 
-		//keyboardUpdate_age();
-
 		while(SDL_PollEvent(&e) != 0)
 		{
 			//User requests quit
@@ -119,14 +115,17 @@ void AGE::Run(EventHandle_age eventHandler, UserUpdate_age userUpdate, UserDraw_
 			}
 
 			eventHandler(&e);
-			//mouseHandleEvent_age(&e);
 		}
 
 		current_fps = countedFrames / (fpsTimer.GetTicks() / 1000.f);
 
-		userUpdate();
+		userUpdate(this);
 		lastUpdate = SDL_GetTicks();
-		userDraw();
+		
+		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(renderer);
+		userDraw(this);
+		SDL_RenderPresent(renderer);
 
 		++countedFrames;
 
@@ -134,16 +133,15 @@ void AGE::Run(EventHandle_age eventHandler, UserUpdate_age userUpdate, UserDraw_
 		{
 			int frameTicks = capTimer.GetTicks();
 
-	        if( frameTicks < MAX_TICKS_PER_FRAME )
-	        {
-	            //Wait remaining time
-	            SDL_Delay( MAX_TICKS_PER_FRAME - frameTicks );
-	        }
-    	}    	    	
+			if( frameTicks < MAX_TICKS_PER_FRAME )
+			{
+				SDL_Delay( MAX_TICKS_PER_FRAME - frameTicks );
+			}
+		}
 	}
 }
 
-void AGE::SetMaxFPS(int maxFps)
+void AGE_Engine::SetMaxFPS(int maxFps)
 {
 	MAX_FPS = maxFps;
 
@@ -155,14 +153,14 @@ void AGE::SetMaxFPS(int maxFps)
 	MAX_TICKS_PER_FRAME = 1000/MAX_FPS;
 }
 
-double AGE::DeltaSecondsGet()
+double AGE_Engine::DeltaSecondsGet()
 {
 	Uint32 milliSeconds = DeltaMilliSecondsGet();
 	double result = milliSeconds / 1000.f;
 	return result;
 }
 
-Uint32 AGE::DeltaMilliSecondsGet()
+Uint32 AGE_Engine::DeltaMilliSecondsGet()
 {
 	Uint32 curr = SDL_GetTicks();
 	Uint32 result = curr - lastUpdate;
@@ -175,13 +173,13 @@ Uint32 AGE::DeltaMilliSecondsGet()
 	return result;
 }
 
-void AGE::Close()
+void AGE_Engine::Destroy()
 {
-	//Destroy gWindow
-	SDL_DestroyRenderer( gRenderer );
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
-	gRenderer = NULL;
+	//Destroy window
+	SDL_DestroyRenderer( renderer );
+	SDL_DestroyWindow( window );
+	window = NULL;
+	renderer = NULL;
 	
 	//Quit SDL subsystems
 	TTF_Quit();
@@ -189,41 +187,43 @@ void AGE::Close()
 	SDL_Quit();
 }
 
-void AGE::FullScreenBorderless()
+void AGE_Engine::FullScreenBorderless()
 {
 	SDL_Rect oldBounds = {0,0, windowRect->GetWidth(), windowRect->GetHeight()};
 
-    if(SDL_GetWindowFlags(gWindow) & SDL_WINDOW_BORDERLESS)
-    {
-        SDL_SetWindowBordered(gWindow, SDL_TRUE);
-        SDL_SetWindowSize(gWindow, oldBounds.w, oldBounds.h);
-        SDL_SetWindowPosition(gWindow, oldBounds.x, oldBounds.y);
+	if(SDL_GetWindowFlags(window) & SDL_WINDOW_BORDERLESS)
+	{
+		SDL_SetWindowBordered(window, SDL_TRUE);
+		SDL_SetWindowSize(window, oldBounds.w, oldBounds.h);
+		SDL_SetWindowPosition(window, oldBounds.x, oldBounds.y);
 
-        windowRect->SetWidth(oldBounds.w);
+		windowRect->SetWidth(oldBounds.w);
 		windowRect->SetHeight(oldBounds.h);
 		AGE_ViewRect.SetWidth(windowRect->GetWidth());
 		AGE_ViewRect.SetHeight(windowRect->GetHeight());
+	}
+	else
+	{
+		SDL_Rect curBounds;
+		SDL_GetWindowPosition(window, &curBounds.x, &curBounds.y);
+		SDL_GetWindowSize(window, &curBounds.w, &curBounds.h);
 
-        //return oldBounds;
-    }
-    else
-    {
-        SDL_Rect curBounds;
-        SDL_GetWindowPosition(gWindow, &curBounds.x, &curBounds.y);
-        SDL_GetWindowSize(gWindow, &curBounds.w, &curBounds.h);
-
-        int idx = SDL_GetWindowDisplayIndex(gWindow);
-        SDL_Rect bounds;
-        SDL_GetDisplayBounds(idx, &bounds);
-        SDL_SetWindowBordered(gWindow, SDL_FALSE);
-        SDL_SetWindowPosition(gWindow, bounds.x, bounds.y);
-        SDL_SetWindowSize(gWindow, bounds.w, bounds.h);
+		int idx = SDL_GetWindowDisplayIndex(window);
+		SDL_Rect bounds;
+		SDL_GetDisplayBounds(idx, &bounds);
+		SDL_SetWindowBordered(window, SDL_FALSE);
+		SDL_SetWindowPosition(window, bounds.x, bounds.y);
+		SDL_SetWindowSize(window, bounds.w, bounds.h);
 
 		windowRect->SetWidth(curBounds.w);
 		windowRect->SetHeight(curBounds.h);
 		AGE_ViewRect.SetWidth(windowRect->GetWidth());
 		AGE_ViewRect.SetHeight(windowRect->GetHeight());
 
-        //return curBounds;
-    }
+	}
+}
+
+void AGE_Engine::SetRenderTarget(SDL_Texture* texture)
+{
+	SDL_SetRenderTarget(this->renderer, texture);
 }

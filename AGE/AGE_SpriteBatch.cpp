@@ -2,10 +2,14 @@
 #include "AGE_Graphics.h"
 
 // bool testIterator(void *rSprite);
-void renderSpriteIterator(renderSprite_age, AGE_Camera*);
-void renderSpriteIteratorGUI(renderSprite_age);
+void renderSpriteIterator(SDL_Renderer*, renderSprite_age, AGE_Camera*);
 
 AGE_Rect AGE_ViewRect;
+
+AGE_SpriteBatch::AGE_SpriteBatch(AGE_Engine *engine)
+{
+	this->renderer = engine->renderer;
+}
 
 void AGE_SpriteBatch::DrawBegin()
 {
@@ -77,43 +81,24 @@ void AGE_SpriteBatch::Render(AGE_Sprite* sprite, AGE_Vector *pos, AGE_Rect* clip
 
 
 void AGE_SpriteBatch::DrawEnd(AGE_Camera* camera)
-{	
-	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gRenderer);	
-
+{
 	vector<renderSprite_age>::iterator it;
-
-	// AGE_ListForEach( ,testIterator);
 
 	for (it = this->renderSprites.begin(); it != this->renderSprites.end(); ++it)
 	{				
-		renderSpriteIterator(*it, camera);
+		renderSpriteIterator(this->renderer, *it, camera);
 	}
 
-	SDL_RenderPresent(gRenderer);
+	
 }
 
-// bool testIterator(void *rSprite)
-// {
-// 	renderSprite_age* rS = (renderSprite_age*)rSprite;
-// 	// printf("%d\n",rS->depth);
-// }
-void renderSpriteIterator(renderSprite_age rSprite, AGE_Camera* camera)
+void renderSpriteIterator(SDL_Renderer* renderer, renderSprite_age rSprite, AGE_Camera* camera)
 {
 	if(camera != NULL)
 	{
 		rSprite.renderRect.x -= (int)camera->GetOffset().GetX();
 		rSprite.renderRect.y -= (int)camera->GetOffset().GetY();
 	}	
-	cout << rSprite.renderRect.x << " "<<rSprite.renderRect.y << " "<<rSprite.renderRect.w << " "<<rSprite.renderRect.h << endl;
 
-	SDL_RenderCopyEx(gRenderer, rSprite.sprite->GetTexture(), NULL, &(rSprite.renderRect), rSprite.rotation, &rSprite.origin, rSprite.flip);
-	// printf("ERROR");
+	SDL_RenderCopyEx(renderer, rSprite.sprite->GetTexture(), NULL, &(rSprite.renderRect), rSprite.rotation, &rSprite.origin, rSprite.flip);	
 }
-
-void renderSpriteIteratorGUI(renderSprite_age rSprite)
-{
-	SDL_RenderCopyEx(gRenderer, rSprite.sprite->GetTexture(), &rSprite.clip, &(rSprite.renderRect), rSprite.rotation, &rSprite.origin, rSprite.flip);
-	// printf("ERROR");
-}
-

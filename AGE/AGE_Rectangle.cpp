@@ -64,30 +64,30 @@ void AGE_Rect::Print()
     printf("AGE_Rect: {x:%d, y:%d, Width:%d, height:%d}\n", this->x, this->y, this->width, this->height);
 }
 
-// bool AGE_Rect::Contains(AGE_Vector point)
-// {
-//     int left;
-//     int right;
-//     int top;
-//     int bottom;
+bool AGE_Rect::Contains(AGE_Vector point)
+{
+    int left;
+    int right;
+    int top;
+    int bottom;
 
-//     left = this->x;
-//     right = this->x + this->width;
-//     top = this->y;
-//     bottom = this->y + this->height;
+    left = this->x;
+    right = this->x + this->width;
+    top = this->y;
+    bottom = this->y + this->height;
 
-//     if(point.x < left || point.x > right)
-//     {
-//         return false;
-//     }
+    if(point.GetX() < left || point.GetX() > right)
+    {
+        return false;
+    }
 
-//     if(point.y < top || point.y > bottom)
-//     {
-//         return false;
-//     }
+    if(point.GetY() < top || point.GetY() > bottom)
+    {
+        return false;
+    }
 
-//     return true;
-// }
+    return true;
+}
 
 bool AGE_Rect::Contains(AGE_Rect rect)
 {

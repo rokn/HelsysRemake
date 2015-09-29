@@ -1,8 +1,8 @@
-#AGE engine files  //AGE_Keyboard_Input.cpp AGE_Mouse_Input.cpp 
-AGE = AGE_Core.cpp AGE_Timer.cpp AGE_Rectangle.cpp AGE_Sprite.cpp AGE_SpriteBatch.cpp AGE_Vector.cpp AGE_Animation.cpp AGE_Camera.cpp AGE_Helper.cpp
+#AGE engine files  //
+AGE = AGE_Core.cpp AGE_Timer.cpp AGE_Rectangle.cpp AGE_Sprite.cpp AGE_SpriteBatch.cpp AGE_Vector.cpp AGE_Animation.cpp AGE_Camera.cpp AGE_Helper.cpp AGE_Keyboard_Input.cpp AGE_Mouse_Input.cpp 
 
-#AGE objects //AGE_Keyboard_Input.o AGE_Mouse_Input.o 
-AGE_OBJS = AGE_Core.o AGE_Timer.o AGE_Rectangle.o AGE_Sprite.o AGE_SpriteBatch.o AGE_Vector.o AGE_Animation.o AGE_Camera.o AGE_Helper.o
+#AGE objects //
+AGE_OBJS = AGE_Core.o AGE_Timer.o AGE_Rectangle.o AGE_Sprite.o AGE_SpriteBatch.o AGE_Vector.o AGE_Animation.o AGE_Camera.o AGE_Helper.o AGE_Keyboard_Input.o AGE_Mouse_Input.o
 
 #CC specifies which compiler we're using
 CC = g++

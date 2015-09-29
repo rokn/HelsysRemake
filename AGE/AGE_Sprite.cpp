@@ -17,9 +17,9 @@ void AGE_Sprite::freeTexture()
 	}
 }
 
-bool AGE_Sprite::CreateBlank(int width, int height, SDL_TextureAccess access)
+bool AGE_Sprite::CreateBlank(AGE_Engine *engine,int width, int height, SDL_TextureAccess access)
 {
-    this->texture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_RGBA8888, access, width, height);
+    this->texture = SDL_CreateTexture(engine->renderer, SDL_PIXELFORMAT_RGBA8888, access, width, height);
 
     if( this->texture == NULL )
     {
@@ -34,12 +34,7 @@ bool AGE_Sprite::CreateBlank(int width, int height, SDL_TextureAccess access)
     return this->texture != NULL;
 }
 
-void AGE_Sprite::SetRenderTarget()
-{
-	SDL_SetRenderTarget(gRenderer, this->texture);
-}
-
-bool AGE_Sprite::Load(char *path)
+bool AGE_Sprite::Load(AGE_Engine* engine, char *path)
 {
 	freeTexture();
 	
@@ -54,7 +49,7 @@ bool AGE_Sprite::Load(char *path)
 	{
 
 		SDL_SetColorKey( loadedSurface, SDL_TRUE, SDL_MapRGB( loadedSurface->format, 0, 0xFF, 0xFF ) );
-        finalTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+        finalTexture = SDL_CreateTextureFromSurface( engine->renderer, loadedSurface );
 
 		if( finalTexture == NULL )
 		{
@@ -91,65 +86,7 @@ void AGE_Sprite::SetAlpha(Uint8 alpha)
 	SDL_SetTextureAlphaMod(this->texture, alpha);
 }
 
-// void AGE_Sprite::RenderGUI(AGE_Vector *pos, AGE_Rect* clip, short depth, double rotation = 0.0, AGE_Vector *origin = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE)
-// {
-// 	SDL_Rect renderRect = {(int)pos->GetX(), (int)pos->GetY(), this->width, this->height};
-
-// 	if(clip!=NULL)
-// 	{
-// 		renderRect.w = clip->GetWidth();
-// 		renderRect.h = clip->GetHeight();
-// 	}
-
-// 	AGE_Rect imageRect = (AGE_Rect){renderRect.x, renderRect.y, renderRect.w, renderRect.h};	
-
-// 	if(!imageRect.Intersects(AGE_ViewRect))
-// 	{
-// 		return;
-// 	}
-
-// 	renderSprite_age renderSprite;
-// 	renderSprite.sprite = this;
-// 	renderSprite.pos = pos;
-// 	renderSprite.clip = (SDL_Rect){clip->GetX(), clip->GetY(), clip->GetWidth(), clip->GetHeight()};
-// 	renderSprite.renderRect = renderRect;
-// 	renderSprite.rotation = rotation;
-// 	renderSprite.flip = flip;
-// 	renderSprite.depth = depth;
-
-// 	SDL_Point sdlOrigin;
-
-// 	if(origin!=NULL)
-// 	{
-// 		sdlOrigin.x = (int)origin->GetX();
-// 		sdlOrigin.y = (int)origin->GetY();
-// 	}
-// 	else
-// 	{
-// 		sdlOrigin.x = 0;
-// 		sdlOrigin.y = 0;
-// 	}
-
-// 	renderSprite.origin = sdlOrigin;
-
-// 	bool inserted = false;
-// 	for (vector<renderSprite_age>::iterator it = spriteBatchGui_age.renderSprites.begin(); it != spriteBatchGui_age.renderSprites.end(); ++it)
-// 	{		
-// 		if((*it).depth>renderSprite.depth)
-// 		{
-// 			spriteBatchGui_age.renderSprites.insert(it, renderSprite);
-// 			inserted = true;
-// 			break;
-// 		}
-// 	}
-
-// 	if(!inserted)
-// 	{
-// 		spriteBatchGui_age.renderSprites.push_back(renderSprite);
-// 	}
-// }
-
-bool AGE_Sprite::LoadFromText(char* text, SDL_Color textColor, TTF_Font* font)
+bool AGE_Sprite::LoadFromText(AGE_Engine* engine, char* text, SDL_Color textColor, TTF_Font* font)
 {
 	freeTexture();
 
@@ -161,7 +98,7 @@ bool AGE_Sprite::LoadFromText(char* text, SDL_Color textColor, TTF_Font* font)
 	}
 	else
 	{		
-		this->texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+		this->texture = SDL_CreateTextureFromSurface(engine->renderer, textSurface);
 
 		if(this->texture == NULL)
 		{

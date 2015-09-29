@@ -1,6 +1,6 @@
 #include "AGE.h"
 #include "AGE_Graphics.h"
-// #include "AGE_Input.h"
+#include "AGE_Input.h"
 
 AGE_Camera::AGE_Camera(AGE_Vector offset)
 {
@@ -14,8 +14,7 @@ void AGE_Camera::SetTransform(AGE_Vector v)
 	*this->Offset = v;
 	AGE_ViewRect.SetX(this->Offset->GetX());
 	AGE_ViewRect.SetY(this->Offset->GetY());
-	// AGE_Mouse.TransformedPosition.GetX() = AGE_Mouse.Position.x + this->Offset->GetX();
-	// AGE_Mouse.TransformedPosition.GetY() = AGE_Mouse.Position.y + this->Offset->GetY();
+	
 }
 
 void AGE_Camera::ChangeTransform(AGE_Vector v)
@@ -26,6 +25,12 @@ void AGE_Camera::ChangeTransform(AGE_Vector v)
 	// AGE_Mouse.TransformedPosition.GetX() = AGE_Mouse.Position.x + this->Offset->GetX();
 	// AGE_Mouse.TransformedPosition.GetY() = AGE_Mouse.Position.y + this->Offset->GetY();
 	this->IsFocusing = false;
+}
+
+AGE_Vector AGE_Camera::GetOffsetMousePosition(AGE_Mouse *mouse)
+{
+	AGE_Vector pos(mouse->GetPosition().GetX() + this->Offset->GetX(), mouse->GetPosition().GetY() + this->Offset->GetY());
+	return pos;
 }
 
 AGE_Vector AGE_Camera::GetOffset()

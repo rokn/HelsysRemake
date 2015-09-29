@@ -22,26 +22,27 @@
 
 #include "AGE_Graphics.h"
 
-extern SDL_Renderer *gRenderer;
-extern SDL_Window *gWindow;
 
-typedef void (*EventHandle_age)(SDL_Event *event);
-typedef void (*UserUpdate_age)();
-typedef void (*UserDraw_age)();
+//									Classes
 
-//Classes
-
-class AGE;
+class AGE_Engine;
 class AGE_Vector;
 class AGE_Timer;
 class AGE_Rect;
 class AGE_Sprite;
+class AGE_SpriteBatch;
 class AGE_Camera;
 class AGE_Animation;
+class AGE_Keyboard;
+class AGE_Mouse;
 
-//Main functions
 
-class AGE
+typedef void (*EventHandle_age)(SDL_Event *event);
+typedef void (*UserUpdate_age)(AGE_Engine *engine);
+typedef void (*UserDraw_age)(AGE_Engine *engine);
+//									Main functions
+
+class AGE_Engine
 {
 	int MAX_FPS;
 	int MAX_TICKS_PER_FRAME;
@@ -49,7 +50,9 @@ class AGE
 
 	AGE_Rect* windowRect;
 		
-	SDL_Window *gWindow = NULL;
+	SDL_Window *window = NULL;
+
+	SDL_Renderer *renderer = NULL;
 
 	Uint32 lastUpdate;
 
@@ -58,6 +61,8 @@ class AGE
 	bool VSynced;
 
 public:
+	friend class AGE_Sprite;
+	friend class AGE_SpriteBatch;
 	bool Init(const char* windowTitle,int screenWidth, int screenHeight, bool vSync);
 	void Run(EventHandle_age, UserUpdate_age, UserDraw_age);
 	void SetMaxFPS(int);
@@ -65,12 +70,15 @@ public:
 	double DeltaSecondsGet();
 	Uint32 DeltaMilliSecondsGet();
 	void SetWindowSize(int,int);
+	void SetRenderTarget(SDL_Texture *);
 	AGE_Rect GetWindowRect();
 	void FullScreenBorderless();
-	void Close();
+	void Destroy();
 	void Exit();
 };
 
+
+//									VECTOR
 
 class AGE_Vector
 {
@@ -100,6 +108,8 @@ public:
 
 };
 
+//									TIMER
+
 class AGE_Timer
 {
 	Uint32 startTime;
@@ -117,11 +127,7 @@ public:
 	Uint32 GetTicks();
 };
 
-//Timer functions
-
-//Vector
-
-//Rectangle
+//									Rectangle
 
 class AGE_Rect
 {
@@ -151,7 +157,7 @@ public:
 	void SetHeight(int);
 };
 
-//Helper Methods
+//									Helper Methods
 
 AGE_Vector AGE_Helper_RotatedVectorMove(AGE_Vector position, float rotation, float speed);
 float AGE_Helper_FindRotation(AGE_Vector, AGE_Vector);

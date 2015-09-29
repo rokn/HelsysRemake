@@ -6,14 +6,22 @@
 
 using namespace std;
 
-//Classes
-class AGE;
+//									Classes
+class AGE_Engine;
 class AGE_Vector;
 class AGE_Timer;
 class AGE_Rect;
 class AGE_Sprite;
+class AGE_SpriteBatch;
 class AGE_Camera;
 class AGE_Animation;
+class AGE_Keyboard;
+class AGE_Mouse;
+
+
+extern AGE_Rect AGE_ViewRect;
+
+//									SPRITE
 
 class AGE_Sprite
 {	
@@ -24,19 +32,18 @@ class AGE_Sprite
 
 public:
 	void Destroy();
-	bool Load(char*);
-	bool CreateBlank(int, int, SDL_TextureAccess);
-	void SetRenderTarget();
-	bool LoadFromText(char*, SDL_Color, TTF_Font*);	
+	bool Load(AGE_Engine*, char*);
+	bool CreateBlank(AGE_Engine*, int, int, SDL_TextureAccess);
+	bool LoadFromText(AGE_Engine*, char*, SDL_Color, TTF_Font*);	
 	void SetColor(Uint8, Uint8, Uint8);
 	void SetBlendMode(SDL_BlendMode);
 	void SetAlpha(Uint8);
-	// void Render(AGE_Vector*, AGE_Rect*, short, double, AGE_Vector *, SDL_RendererFlip);
-	// void RenderGUI(AGE_Vector*, AGE_Rect*, short, double, AGE_Vector *, SDL_RendererFlip);
 	SDL_Texture* GetTexture();
 	int GetWidth();
 	int GetHeight();
 };
+
+//									RENDERSPRITE
 
 typedef struct{
 	AGE_Sprite *sprite;
@@ -49,17 +56,21 @@ typedef struct{
 	short depth;
 }renderSprite_age;
 
+//									SPRITEBATCH
+
 class AGE_SpriteBatch
 {
+	SDL_Renderer *renderer;
 	vector<renderSprite_age> renderSprites;
 
 public:
+	AGE_SpriteBatch(AGE_Engine*);
 	void DrawBegin();
 	void Render(AGE_Sprite*, AGE_Vector*, AGE_Rect*, short, double, AGE_Vector *, SDL_RendererFlip);
 	void DrawEnd(AGE_Camera*);
 };
 
-//CAMERA 
+//									CAMERA 
 
 class AGE_Camera
 {
@@ -75,12 +86,11 @@ public:
 	void SetTransform(AGE_Vector);
 	void ChangeTransform(AGE_Vector);
 	AGE_Vector GetOffset();
+	AGE_Vector GetOffsetMousePosition(AGE_Mouse *);
 	void FocusOn(AGE_Rect, float);	
 };
 
-//void sprite_init(AGE_Sprite *);
-
-//ANIMATION
+//									ANIMATION
 
 class AGE_Animation
 {
@@ -106,7 +116,5 @@ public:
 	void Draw(AGE_SpriteBatch*, double, AGE_Vector*, SDL_RendererFlip, short);
 	void Destroy();
 };
-
-extern AGE_Rect AGE_ViewRect;
 
 #endif
