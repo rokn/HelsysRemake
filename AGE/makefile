@@ -15,7 +15,7 @@ COMPILER_FLAGS = -w -c
 ERROR_LOG = log.txt
 
 #LINKER FLAGS for libraries
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lm -Ilua-5.0.2/include/ -Llua-5.0.2/lib/ -llua
 
 
 all : $(AGE)

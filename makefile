@@ -11,8 +11,8 @@ COMPILER_FLAGS = -w -g
 #error log
 ERROR_LOG = log.txt
 
-#LINKER FLAGS for libraries
-LINKER_FLAGS = -L./AGE -lAGE -L./Libraries -liniparser -lSDL2 -lSDL2_image -lSDL2_ttf -lm
+#LINKER FLAGS for libraries   -L./BOX2D -lBox2D
+LINKER_FLAGS = -L./AGE -lAGE -L./Libraries -liniparser  -lSDL2 -lSDL2_image -lSDL2_ttf -lm
 
 #obj name for the name of the exe
 OBJ_NAME = GAME
